@@ -1,6 +1,14 @@
 myANOVA = function(value, type) {
 	loadPackages()
 
+	#Robustness
+	if (checkVariables(value, type)){
+		print("Data was sumbitted properly")
+	} else {
+		print("Second paramater should not be a scale")
+		return("Done")
+	}
+	
 	boxplot(value ~ type)
 	type = as.factor(type)
 	outAOV = aov(value ~ type)
@@ -29,7 +37,7 @@ myANOVA = function(value, type) {
 		#print("Variances are similar. Good.")
 	} else {
 		#print("Variances are NOT similar. NOT good.")
-		print("The data has a differing amount of how much it is spread out")
+		print("The data has a differing amount of how much it is spread out which could be an issue")
 	}
 	
 	if(norm && homo){
@@ -51,10 +59,9 @@ myANOVA = function(value, type) {
 }
 
 loadPackages = function(){
-	if (!require("lawstat",character.only = TRUE))
-    {
-      install.packages("lawstat", dep=TRUE, repos="https://ftp.heanet.ie/mirrors/cran.r-project.org/")
-    }
+	if (!require("lawstat",character.only = TRUE)){
+		install.packages("lawstat", dep=TRUE, repos="https://ftp.heanet.ie/mirrors/cran.r-project.org/")
+	}
 	library("lawstat")
 }
 
@@ -86,6 +93,17 @@ postHoc = function(outAOV, type) {
 		}
 	}
 
+}
+
+checkVariables = function(value, type){
+	numLevels  = length(levels(as.factor(type)))
+	numPoints = length(type)
+	
+	if(numLevels < numPoints*0.8){
+		return (TRUE)
+	} else {
+		return (FALSE)
+	}
 }
 
 checkOutliers = function(value, type){
